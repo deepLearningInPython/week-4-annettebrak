@@ -106,13 +106,14 @@ def token_counts(string: str, k: int = 1) -> dict:
     
     word_frequencies = {word: tokens.count(word) for word in set(tokens)}
     
-    filtered_frequencies = {word: count for word, count in word_frequencies.items() if count > k}
+    filtered_frequencies = {word: count for word, count in word_frequencies.items() if count >= k}
     
     return filtered_frequencies
 
 # test:
 text_hist = {'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1}
 all(text_hist[key] == value for key, value in token_counts(text).items())
+
 # -----------------------------------------------
 
 
@@ -174,7 +175,7 @@ assert all(id_to_token[token_to_id[key]]==key for key in token_to_id) and all(to
 def make_vocabulary_map(documents: list) -> tuple:
     all_tokens = [token.lower() for doc in documents for token in tokenize(doc)]
     
-    unique_tokens = sorted(set(all_tokens))
+    unique_tokens = set(all_tokens)
 
     # Create token2int dictionary
     token2int = {token: i for i, token in enumerate(unique_tokens)}
@@ -203,11 +204,9 @@ all(i2t[t2i[tok]] == tok for tok in t2i) # should be True
 def tokenize_and_encode(documents: list) -> list:
     token_to_id, id_to_token = make_vocabulary_map(documents)
     
-    # Tokenize and encode each document
     encoded_documents = []
     for doc in documents:
-        tokens = tokenize(doc)
-        tokens = sorted(set(tokens))
+        tokens = tokenize(doc)  # Tokenize without converting to set to preserve order
         encoded_doc = [token_to_id[token] for token in tokens if token in token_to_id]
         encoded_documents.append(encoded_doc)
     
@@ -216,6 +215,7 @@ def tokenize_and_encode(documents: list) -> list:
 # Test:
 enc, t2i, i2t = tokenize_and_encode([text, 'What a luck we had today!'])
 " | ".join([" ".join(i2t[i] for i in e) for e in enc]) == 'the quick brown fox jumps over the lazy dog | what a luck we had today'
+
 # -----------------------------------------------
 
 
